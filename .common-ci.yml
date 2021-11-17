@@ -146,6 +146,7 @@ image-ubuntu20.04:
       allow_failure: true
     - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != $RELEASE_DEVEL_BRANCH
       allow_failure: true
+    - when: always
   before_script:
     - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
     # TODO: We should specify the architecture here and scan all architectures
@@ -165,14 +166,14 @@ scan-ubuntu20.04:
     - .scan
     - .dist-ubuntu20.04
   needs:
-    - image-ubuntu20.04
+    - job: image-ubuntu20.04
 
 scan-ubi8:
   extends:
     - .scan
     - .dist-ubi8
   needs:
-    - image-ubi8
+    - job: image-ubi8
 
 # .release forms the base of the deployment jobs which push images to the CI registry.
 # This is extended with the version to be deployed (e.g. the SHA or TAG) and the
@@ -236,11 +237,15 @@ release:staging-ubi8:
     - .release:staging
     - .dist-ubi8
   needs:
-    - image-ubi8
+    - job: image-ubi8
+    - job: scan-ubi8
+      optional: true
 
 release:staging-ubuntu20.04:
   extends:
     - .release:staging
     - .dist-ubuntu20.04
   needs:
-    - image-ubuntu20.04
+    - job: image-ubuntu20.04
+    - job: scan-ubi8
+      optional: true

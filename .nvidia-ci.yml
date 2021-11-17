@@ -89,19 +89,31 @@ release:ngc-ubuntu20.04:
   extends:
     - .release:ngc
     - .dist-ubuntu20.04
+  needs:
+    - job: scan-ubuntu20.04
+      optional: true
 
 release:ngc-ubi8:
   extends:
     - .release:ngc
     - .dist-ubi8
+  needs:
+    - job: scan-ubi8
+      optional: true
 
 # Release to Dockerhub
 release:dockerhub-ubuntu20.04:
   extends:
     - .release:dockerhub
     - .dist-ubuntu20.04
+  needs:
+    - job: scan-ubuntu20.04
+      optional: true
 
 release:dockerhub-ubi8:
   extends:
     - .release:dockerhub
     - .dist-ubi8
+  needs:
+    - job: scan-ubi8
+      optional: true
